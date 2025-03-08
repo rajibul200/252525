@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro X-O Battle</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <!-- Top Ads -->
+    <div class="ad-container banner-top">
+        <div class="ad-slot">Leaderboard Ad (728x90)</div>
+    </div>
+
+    <!-- Game Area -->
+    <div class="game-wrapper">
+        <div id="game-container">
+            <h1 class="game-title">🏆 PRO X-O SHOWDOWN - LEVEL <span id="level">1</span></h1>
+            <div id="grid"></div>
+            <div id="status-bar">
+                <p id="status"></p>
+                <div id="warning-message" class="hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Ads -->
+    <div class="ad-container banner-bottom">
+        <div class="ad-slot">Large Mobile Banner (320x100)</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button id="reset" class="neon-button">↻ Restart Level</button>
+    </div>
+
+    <!-- Warning Modal -->
+    <div id="warning-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>⚠️ Strategic Error Detected!</h3>
+            <p id="error-message"></p>
+            <button class="modal-close">Continue</button>
+        </div>
+    </div>
+</body>
+</html>
