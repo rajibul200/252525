@@ -1,0 +1,119 @@
+document.addEventListener("DOMContentLoaded", () => {
+    const grid = document.getElementById("grid");
+    const status = document.getElementById("status");
+    const warningModal = document.getElementById("warning-modal");
+    const errorMessage = document.getElementById("error-message");
+    
+    let level = 1;
+    let board = Array(16).fill('');
+    let gameActive = true;
+    let aiTimeout = level > 5 ? 100 : 300;
+
+    // Enhanced Win Patterns with Priority
+    const winPatterns = [
+        // Rows
+        [0,1,2,3], [4,5,6,7], [8,9,10,11], [12,13,14,15],
+        // Columns
+        [0,4,8,12], [1,5,9,13], [2,6,10,14], [3,7,11,15],
+        // Diagonals
+        [0,5,10,15], [3,6,9,12], [1,6,11], [2,5,8], // Added 3-length for prediction
+        // Strategic Points
+        [5,6,9,10], [1,4,5], [10,14,15], [6,7,10]
+    ];
+
+    function createGrid() {
+        grid.innerHTML = '';
+        for (let i = 0; i < 16; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.index = i;
+            cell.addEventListener('click', handleMove);
+            grid.appendChild(cell);
+        }
+    }
+
+    function handleMove(e) {
+        if (!gameActive) return;
+        
+        const index = parseInt(e.target.dataset.index);
+        if (board[index] !== '') return;
+
+        makeMove(index, 'X');
+        if (checkWin('X')) handleVictory();
+        else if (isBoardFull()) showError("Strategic Stalemate! No moves left");
+        else aiTurn();
+    }
+
+    function aiTurn() {
+        status.textContent = "🤖 AI Analyzing...";
+        setTimeout(() => {
+            level > 5 ? advancedAI() : basicAI();
+            if (checkWin('O')) showError("AI Outsmarted You!");
+            else if (isBoardFull()) showError("Tactical Draw!");
+            else status.textContent = "Your Move Commander!";
+        }, level > 5 ? 50 : 200);
+    }
+
+    function advancedAI() {
+        // Immediate Win Check
+        let move = findCriticalMove('O');
+        // Block Player Win
+        if (!move) move = findCriticalMove('X');
+        // Create Fork Opportunity
+        if (!move) move = findStrategicPosition();
+        // Center Control
+        if (!move) move = prioritizeCenter();
+        // Fallback
+        if (!move) move = getRandomMove();
+        
+        makeMove(move, 'O');
+    }
+
+    function findCriticalMove(symbol) {
+        for (let pattern of winPatterns) {
+            let potentialWin = pattern.filter(i => board[i] === symbol);
+            let emptySpots = pattern.filter(i => board[i] === '');
+            if (potentialWin.length === 3 && emptySpots.length === 1) 
+                return emptySpots[0];
+        }
+        return null;
+    }
+
+    function prioritizeCenter() {
+        const priorityCells = [5,6,9,10,7,11];
+        return priorityCells.find(c => board[c] === '') ?? getRandomMove();
+    }
+
+    function showError(reason) {
+        gameActive = false;
+        errorMessage.textContent = `${reason} - Restarting Level...`;
+        warningModal.classList.remove('hidden');
+        setTimeout(resetLevel, 2000);
+    }
+
+    // Optimized Game Functions
+    function makeMove(index, player) {
+        board[index] = player;
+        grid.children[index].textContent = player;
+        grid.children[index].classList.add('taken');
+    }
+
+    function resetLevel() {
+        board = Array(16).fill('');
+        gameActive = true;
+        grid.querySelectorAll('.cell').forEach(cell => {
+            cell.textContent = '';
+            cell.classList.remove('taken');
+        });
+        warningModal.classList.add('hidden');
+        status.textContent = level > 1 ? `Level ${level} - Engage!` : "Begin!";
+    }
+
+    // ... (keep previous core functions with optimizations)
+
+    // Initialize
+    createGrid();
+    document.querySelector('.modal-close').addEventListener('click', () => {
+        warningModal.classList.add('hidden');
+    });
+});
